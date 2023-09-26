@@ -16,7 +16,7 @@
 		}
 	},
 	"require": {
-		"nette/nette": "^4.0"
+		"nette/nette": ">3.1"
 	},
 	"suggest": {
 		"oyejorge/less.php": "LESS compiler written in PHP.",
