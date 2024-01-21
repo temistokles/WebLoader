@@ -15,9 +15,6 @@
 			"WebLoader": ""
 		}
 	},
-	"require": {
-		"nette/nette": ">=3.1 || ^4.0"
-	},
 	"suggest": {
 		"oyejorge/less.php": "LESS compiler written in PHP.",
 		"leafo/scssphp": "SCSS compiler written in PHP.",
