@@ -66,7 +66,7 @@ class Extension extends CompilerExtension
 	public function loadConfiguration()
 	{
 		$builder = $this->getContainerBuilder();
-		$config = $this->getConfig($this->getDefaultConfig());
+		$config = $this->validateConfig($this->getDefaultConfig(), $this->getConfig());
 
 		$builder->addDefinition($this->prefix('cssNamingConvention'))
 			->setFactory('WebLoader\DefaultOutputNamingConvention::createCssConvention');
@@ -77,7 +77,7 @@ class Extension extends CompilerExtension
 		if ($config['debugger']) {
 			$builder->addDefinition($this->prefix('tracyPanel'))
 				->setClass('WebLoader\Nette\Diagnostics\Panel')
-				->setArguments(array($builder->expand('%appDir%')));
+				->setArguments(array($builder->parameters['appDir']));
 		}
 
 		$builder->parameters['webloader'] = $config;
@@ -97,7 +97,8 @@ class Extension extends CompilerExtension
 		}
 
 		$builder->addDefinition($this->prefix('factory'))
-			->setClass('WebLoader\Nette\LoaderFactory', array($loaderFactoryTempPaths, $this->name));
+			->setClass('WebLoader\Nette\LoaderFactory')
+                        ->setArguments(array($loaderFactoryTempPaths, $this->name));
 	}
 
 	private function addWebLoader(ContainerBuilder $builder, $name, $config)
@@ -154,15 +155,7 @@ class Extension extends CompilerExtension
 
 	public function afterCompile(Nette\PhpGenerator\ClassType $class)
 	{
-		$meta = $class->properties['meta'];
-		if (array_key_exists('webloader\\nette\\loaderfactory', $meta->value['types'])) {
-			$meta->value['types']['webloader\\loaderfactory'] = $meta->value['types']['webloader\\nette\\loaderfactory'];
-		}
-		if (array_key_exists('WebLoader\\Nette\\LoaderFactory', $meta->value['types'])) {
-			$meta->value['types']['WebLoader\\LoaderFactory'] = $meta->value['types']['WebLoader\\Nette\\LoaderFactory'];
-		}
-
-		$init = $class->methods['initialize'];
+		$init = $class->getMethod('initialize');
 		$init->addBody('if (!class_exists(?, ?)) class_alias(?, ?);', array('WebLoader\\LoaderFactory', FALSE, 'WebLoader\\Nette\\LoaderFactory', 'WebLoader\\LoaderFactory'));
 	}
 
